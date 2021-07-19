@@ -1,0 +1,42 @@
+
+# Windows #
+*.src.rock
+*.zip
+*.tar.gz
+*.lib
+*.dll
+*.exe
+*.out
+### Windows ###
+# Windows thumbnail cache files
+Thumbs.db
+Thumbs.db:encryptable
+ehthumbs.db
+[Dd]esktop.ini
+$RECYCLE.BIN/
+*.lnk
+
+# PyCharm #
+.idea/
+out/
+
+# Python #
+__pycache__/
+*.py[cod]
+*$py.class
+
+.Python
+build/
+
+instance/
+.webassets-cache
+__pypackages__/
+
+# Environments #
+.env
+.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
