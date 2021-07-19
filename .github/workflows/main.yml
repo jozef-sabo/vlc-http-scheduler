@@ -9,7 +9,7 @@ jobs:
           matrix:
             python-version: [3.9]
 
-      steps:
+        steps:
 
           - uses: actions/checkout@v2
 
