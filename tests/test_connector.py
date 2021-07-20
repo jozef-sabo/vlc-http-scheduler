@@ -5,9 +5,9 @@ import app.modules.VLC_connector.tools.status_codes as status_codes
 
 class Tests(unittest.TestCase):
     def test_connector(self):
-        # vlc1 = connector.connect("localhost", "administrator", 8080)  # WILL BE IMPLEMENTED
+        vlc1 = connector.connect("localhost", "administrator", 8080)  # WILL BE IMPLEMENTED
         vlc2 = connector.connect("localhost", "administrator", check_conn=False)
-        # self.assertEqual(vlc1.status, status_codes.OK)  # WILL BE IMPLEMENTED
+        self.assertEqual(vlc1.status, status_codes.OK)  # WILL BE IMPLEMENTED
         self.assertEqual(vlc2.status, status_codes.OK_WITHOUT_TEST)
 
         # with self.assertRaises(ConnectionError):

@@ -15,7 +15,7 @@ def check(connect: Connector):
         connect.status = tools.status_codes.CONNECTION_ERROR
         raise ConnectionRefusedError("The IP refers to offline host.", e)
 
-    print("http://{}:{}/requests/status.xml".format(connect.ip, connect.port))
+    # TODO: Handle all possible incoming errors
 
     if test_request.status_code == 401:
         connect.status = tools.status_codes.AUTH_ERROR

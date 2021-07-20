@@ -1,7 +1,7 @@
 from . import tools
 
 
-def connect(ip: str, password:str, port=8080, username="", *args, **kwargs):
+def connect(ip: str, password: str, port=8080, username="", *args, **kwargs):
     init_check = kwargs.get("check_conn", True)
     ip = tools.validate_ip(ip)
     return Connector(ip, password, port, username, init_check)

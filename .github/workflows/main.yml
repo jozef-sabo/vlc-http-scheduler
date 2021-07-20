@@ -1,4 +1,4 @@
-name: Continuous Integrationon
+name: Autotests
 on: [push]
 
 jobs:
