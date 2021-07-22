@@ -1,11 +1,14 @@
 import winreg
-import find_system
-import system_type
-
-reg_dict = {}
+from . import find_system
+from . import system_type
 
 
 def get_vlc_install_path() -> str:
+    """
+    Returns an installation path of VLC.
+    :return: Install path of VLC
+    :rtype: str
+    """
     system = find_system.get_os()
 
     if system == system_type.WINDOWS or system == system_type.WINDOWS_CYGWIN:
@@ -15,6 +18,11 @@ def get_vlc_install_path() -> str:
 
 
 def __get_path_win() -> str:
+    """
+        Returns an installation path of VLC in Windows like OSs.
+        :return: Install path of VLC
+        :rtype: str
+        """
     try:
         with winreg.OpenKey(winreg.HKEY_LOCAL_MACHINE, "SOFTWARE\\VideoLAN\\VLC") as key:
             installation_path = winreg.QueryValueEx(key, "InstallDir")

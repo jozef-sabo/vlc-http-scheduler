@@ -2,6 +2,18 @@ from . import tools
 
 
 def connect(ip: str, password: str, port=8080, username="", *args, **kwargs):
+    """
+    Creates a connection object, which is used to control VLC.
+    :param ip: IPv4 address of VLC web server
+    :param password: Password for auth on VLC web server set in VLC settings
+    :param port: (Optional) Port used to connect to VLC web server. Default is "8080".
+    :param username: (Optional) Username for auth on VLC web server set in VLC settings. Default is blank.
+    :param args:
+    :param kwargs: (Optional) check_conn: bool - defines, if needed to try connection when Connector is created.
+    Default is True.
+    :return: Connection object
+    :rtype: Connector
+    """
     init_check = kwargs.get("check_conn", True)
     ip = tools.validate_ip(ip)
     return Connector(ip, password, port, username, init_check)
