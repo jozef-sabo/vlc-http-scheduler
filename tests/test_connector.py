@@ -1,6 +1,6 @@
 import unittest
 import app.modules.VLC_connector.connector as connector
-import app.modules.VLC_connector.tools.status_codes as status_codes
+import app.modules.VLC_connector.constants.status_codes as status_codes
 
 
 class Tests(unittest.TestCase):

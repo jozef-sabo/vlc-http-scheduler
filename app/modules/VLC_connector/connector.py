@@ -26,7 +26,7 @@ class Connector(object):
         self.port = port
         self.username = username
         self.__init_check = init_check
-        self.status = tools.status_codes.OK_WITHOUT_TEST
+        self.status = app.modules.VLC_connector.constants.status_codes.OK_WITHOUT_TEST
 
         if self.__init_check:
             tools.check_conn_vlc.check(self)
