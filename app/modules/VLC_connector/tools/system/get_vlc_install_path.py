@@ -1,4 +1,3 @@
-import winreg
 from . import find_system
 from ...constants import system_type
 
@@ -23,6 +22,7 @@ def __get_path_win() -> str:
         :return: Install path of VLC
         :rtype: str
         """
+    import winreg
     try:
         with winreg.OpenKey(winreg.HKEY_LOCAL_MACHINE, "SOFTWARE\\VideoLAN\\VLC") as key:
             installation_path = winreg.QueryValueEx(key, "InstallDir")
