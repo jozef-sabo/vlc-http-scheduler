@@ -1,4 +1,5 @@
 from . import tools
+import app.modules.VLC_connector.constants as constants
 
 
 def connect(ip: str, password: str, port=8080, username="", *args, **kwargs):
@@ -26,7 +27,7 @@ class Connector(object):
         self.port = port
         self.username = username
         self.__init_check = init_check
-        self.status = app.modules.VLC_connector.constants.status_codes.OK_WITHOUT_TEST
+        self.status = constants.status_codes.OK_WITHOUT_TEST
 
         if self.__init_check:
             tools.check_conn_vlc.check(self)
