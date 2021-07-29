@@ -66,4 +66,4 @@ def export_important_strings(locale_path: str, language: str, out_folder="./loca
 
 
 if __name__ == "__main__":
-    get_translations()
+    print(system.get_vlc_lang())

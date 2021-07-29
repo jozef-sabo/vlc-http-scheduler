@@ -195,3 +195,16 @@ eng_to_iso_639_name = {
     "Traditional Chinese":  "zh_TW",
     "Zulu":  "zu"
 }
+
+languages_with_region = {
+    "am_ET",
+    "as_IN",
+    "ca@valencia",
+    "es_MX",
+    "ks_IN",
+    "ku_IQ",
+    "pt_BR",
+    "pt_PT",
+    "zh_CN",
+    "zh_TW",
+}
