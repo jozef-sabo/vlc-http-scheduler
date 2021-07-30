@@ -1,8 +1,11 @@
 from . import tools
+from . import actions
 import app.modules.VLC_connector.constants as constants
+import app.modules.VLC_connector.constants.uri as uri
+from multipledispatch import dispatch
 
 
-def connect(ip: str, password: str, port=8080, username="", *args, **kwargs):
+def connect(ip: str, password: str, port=8080, username="", **kwargs):
     """
     Creates a connection object, which is used to control VLC.
     :param ip: IPv4 address of VLC web server
@@ -32,8 +35,23 @@ class Connector(object):
         if self.__init_check:
             tools.check_conn_vlc.check(self)
 
+    @dispatch()
     def play(self):
-        pass
+        actions.play(self)
+
+    @dispatch(str, str)
+    def play(self, access: str, path: str, **kwargs):
+        ip = kwargs.get("ip", None)
+        port = kwargs.get("port", None)
+        username = kwargs.get("username", None)
+        password = kwargs.get("password", None)
+
+        mrl = tools.request_processing.mrl_prepare(access, path, ip, port, username, password)
+        actions.play(self, inp=mrl)
+
+    @dispatch(int)
+    def play(self, identifier: int):
+        actions.play(self, identifier=identifier)
 
     def stop(self):
         pass
