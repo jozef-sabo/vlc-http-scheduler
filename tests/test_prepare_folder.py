@@ -51,4 +51,3 @@ class Tests(unittest.TestCase):
         self.assertTrue(os.path.isdir(language_folder))
         self.assertEqual(language_folder_out[0], language_folder)
         self.assertEqual(language_folder_out[1], 0)
-
