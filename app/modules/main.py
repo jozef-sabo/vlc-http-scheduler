@@ -1,8 +1,13 @@
 import VLC_connector
 from VLC_connector import connector
+import flaskr
 
 
 if __name__ == "__main__":
-    conn = VLC_connector.connector.connect("localhost", "administrator")
+    flask_app = flaskr.create_app()
 
-    conn.toggle_fullscreen()
+    flask_app.run(host="localhost", debug=True, port=80)
+    print("aa")
+
+    # conn = VLC_connector.connector.connect("localhost", "administrator")
+    # conn.toggle_fullscreen()

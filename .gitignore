@@ -24,6 +24,7 @@ out/
 __pycache__/
 *.py[cod]
 *$py.class
+*.pyc
 
 .Python
 build/
@@ -31,6 +32,13 @@ build/
 instance/
 .webassets-cache
 __pypackages__/
+
+.pytest_cache/
+.coverage
+htmlcov/
+
+dist/
+*.egg-info/
 
 # Environments #
 .env

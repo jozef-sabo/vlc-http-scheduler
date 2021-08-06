@@ -1,0 +1,46 @@
+
+*, body {
+    margin: 0;
+    padding: 0;
+}
+
+html, body {
+    height: 100%;
+}
+
+.height-width-hundred {
+    width: 100%;
+    height: 100%;
+}
+
+.flex-center {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    height: 100%;
+}
+
+.control-button {
+    width: 100px;
+    height: 100px;
+}
+
+.button-anchor {
+    text-decoration: none;
+    display: flex;
+    width: 100%;
+    height: 100%;
+}
+
+.button-anchor i {
+    width: 100%;
+    height: 100%;
+    font-size: 68px;
+    padding: 16px;
+}
+
+.button-anchor, .button-anchor:visited, .button-anchor:hover, .button-anchor:active {
+    color: inherit;
+}
+
