@@ -2,9 +2,10 @@ import os
 from flask import Flask
 from flask import redirect
 import app.modules.VLC_connector.connector as connector
+import queue
 
 
-def create_app():
+def create_app(queue_to_main: queue.LifoQueue = None, queue_to_flask: queue.LifoQueue = None):
     app = Flask(__name__)
     app.static_folder = "./static/"
 
