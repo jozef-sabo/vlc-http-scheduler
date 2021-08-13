@@ -6,7 +6,14 @@ def mrl_prepare(access: str, path: str, ip: str = None, port: int = None, userna
     if ((port or username or password) and not ip) or (access != uri.FILE and not ip):
         raise ResourceWarning("IP of external file is not set.")
 
-    if (username and not password) or (password and not username):
+    #              REASON FOR THE REDESIGN              #
+    #  username  #  password  #  func_values  #   XOR   #
+    #     0      #     0      #       0       #    0    #
+    #     0      #     1      #       1       #    1    #
+    #     1      #     0      #       1       #    1    #
+    #     1      #     1      #       0       #    0    #
+
+    if bool(username) ^ bool(password):
         raise ResourceWarning("Password or username set, but not both.")
 
     mrl = access
