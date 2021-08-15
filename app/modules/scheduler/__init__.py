@@ -15,6 +15,9 @@ import os
 import app.modules.errors as errors
 import json
 
+JOBS_EXPORT_FILE_NAME = "schedule.json"
+used_functions = {}
+
 logger = logging.getLogger("schedule")
 
 
@@ -75,14 +78,33 @@ class Scheduler(object):
         else:
             return [job for job in self.jobs if tag in job.tags]
 
-    def export_jobs(self, filename: str = "scheduler_jobs.json"):
-        print(os.path.abspath("./../config"))
+    def export_jobs(self, filename: str = JOBS_EXPORT_FILE_NAME):
         if not os.path.isdir(os.path.abspath("./../config")):
             raise errors.ConfigFolderMissingError("Config folder was not found. The app needs reinitialization.")
         jobs_list = [job.as_dictionary() for job in self.jobs]
 
         with open(os.path.join(os.path.abspath("./../config"), filename), "w+", encoding="UTF-8") as jobs_export:
             jobs_export.writelines(json.dumps(jobs_list, indent=4))
+
+    def import_jobs(self, filename: str = JOBS_EXPORT_FILE_NAME):
+        if not os.path.isdir(os.path.abspath("./../config")):
+            raise errors.ConfigFolderMissingError("Config folder was not found. The app needs reinitialization.")
+        file_path = os.path.join(os.path.abspath("./../config"), filename)
+        if not os.path.isfile(file_path):
+            raise errors.ConfigFileMissingError("Jobs file was not found. Any jobs were stored.")
+
+        with open(file_path, "r", encoding="UTF-8") as jobs_import:
+            jobs_list = json.loads(jobs_import.read())
+
+        for job in jobs_list:
+            sched_job = Job(1)
+            # sched_job.from_dictionary(job, self)
+            try:
+                sched_job.from_dictionary(job, self)
+            except Exception as e:  # TODO: better exception
+                logger.debug('Job could not been imported "%s"', str(job))
+            else:
+                self.jobs.append(sched_job)
 
     def clear(self, tag: Optional[Hashable] = None) -> None:
         """
@@ -284,6 +306,7 @@ class Job(object):
         """
         Specify a particular time that the job should be run at.
         :param time_str: A string in one of the following formats:
+            - For specific date and time -> `YYYY-MM-DD HH:MM:SS`
             - For daily jobs -> `HH:MM:SS` or `HH:MM`
             - For hourly jobs -> `MM:SS` or `:MM`
             - For minute jobs -> `:SS`
@@ -431,7 +454,7 @@ class Job(object):
         self.period = datetime.timedelta(**{self.unit: interval})
         self.next_run = datetime.datetime.now() + self.period
         if self.at_time is not None:
-            if self.unit not in ("days", "hours", "minutes"):
+            if self.unit not in ("days", "hours"):
                 raise ScheduleValueError("Invalid unit without specifying start day")
             kwargs = {"second": self.at_time.second, "microsecond": 0}
             if self.unit == "days":
@@ -458,13 +481,11 @@ class Job(object):
                         )
                 ):
                     self.next_run = self.next_run - datetime.timedelta(hours=1)
-                elif self.unit == "minutes" and self.at_time.second > now.second:
-                    self.next_run = self.next_run - datetime.timedelta(minutes=1)
 
-    def as_dictionary(self):
+    def as_dictionary(self) -> dict:
         return {
             "interval": self.interval,
-            "unts": self.unit,
+            "unit": self.unit,
             "latest": self.latest,
             "job": {
                 "name": self.job_func.func.__name__,
@@ -477,6 +498,20 @@ class Job(object):
             "period": self.period,
             "tags": list(self.tags)
         }
+
+    def from_dictionary(self, job: dict, scheduler: Scheduler):
+        self.interval = job["interval"]
+        self.unit = job["unit"]
+        self.latest = job["latest"]
+        self.at(job["at_time"])
+        self.last_run = datetime.datetime.strptime(job["last_run"], "%Y-%m-%d %H:%M:%S") if job["last_run"] else None
+        self._schedule_next_run()
+        self.tag(*job["tags"])
+        self.scheduler = scheduler
+        # JOB
+        self.do(used_functions[job["job"]["name"]], *job["job"]["args"], **job["job"]["kwargs"])
+        # referring to functions in this instance, after some program failure e.g. PC was shut down
+        # or electricity went out
 
 
 # The following methods are shortcuts for not having to
@@ -510,11 +545,18 @@ def get_jobs(tag: Optional[Hashable] = None) -> List[Job]:
     return default_scheduler.get_jobs(tag)
 
 
-def export_jobs() -> None:
+def export_jobs(filename: Optional[str] = JOBS_EXPORT_FILE_NAME) -> None:
     """Calls :meth:`export_jobs <Scheduler.export_jobs>` on the
     :data:`default scheduler instance <default_scheduler>`.
     """
-    return default_scheduler.export_jobs()
+    return default_scheduler.export_jobs(filename)
+
+
+def import_jobs(filename: Optional[str] = JOBS_EXPORT_FILE_NAME) -> None:
+    """Calls :meth:`import_jobs <Scheduler.import_jobs>` on the
+    :data:`default scheduler instance <default_scheduler>`.
+    """
+    return default_scheduler.import_jobs(filename)
 
 
 def clear(tag: Optional[Hashable] = None) -> None:
@@ -551,6 +593,23 @@ def repeat(job, *args, **kwargs):
         return decorated_function
 
     return _schedule_decorator
+
+
+def parse_used_functions(*args: Callable) -> None:
+    """
+    Stores every function which was or is going to be scheduled.
+    The syntax of dict goes from <Scheduler.export_jobs> function and this function does the right opposite
+    of what is in export_jobs:
+    "job": {
+        "name": self.job_func.func.__name__,
+        "args": self.job_func.args,
+        "kwargs": self.job_func.keywords
+    },
+    :param args: functions which are going to be scheduled
+    """
+    global used_functions
+    for arg in args:
+        used_functions[arg.__name__] = arg
 
 
 def create_app(queue_to_main: queue.LifoQueue = None, queue_to_scheduler: queue.LifoQueue = None):
