@@ -94,7 +94,7 @@ class Tests(unittest.TestCase):
         )
         self.assertEqual(
             [mrl.uri.FILE, "C:/Users/admin/Downloads/film.mp4"],
-            [mrl_to_file.access, mrl_to_file.path]
+            [mrl_to_file.access, mrl_to_file.path.full]
         )
 
         mrl_to_file = mrl.create().from_url("file:///film.mp4")
@@ -104,7 +104,7 @@ class Tests(unittest.TestCase):
         )
         self.assertEqual(
             [mrl.uri.FILE, "film.mp4"],
-            [mrl_to_file.access, mrl_to_file.path]
+            [mrl_to_file.access, mrl_to_file.path.full]
         )
 
     def test_validate_url_ftp(self):
@@ -114,7 +114,7 @@ class Tests(unittest.TestCase):
             "ftp://1.2.3.4/File.mp4")
         self.assertEqual(
             [mrl.uri.FTP, "1.2.3.4", "File.mp4"],
-            [mrl_to_ftp_file.access, mrl_to_ftp_file.host, mrl_to_ftp_file.path]
+            [mrl_to_ftp_file.access, mrl_to_ftp_file.host, mrl_to_ftp_file.path.full]
         )
 
         mrl_to_ftp_file = mrl.create().from_url("ftp://ftp.com/File.mp4")
@@ -123,7 +123,7 @@ class Tests(unittest.TestCase):
             "ftp://ftp.com/File.mp4")
         self.assertEqual(
             [mrl.uri.FTP, "ftp.com", "File.mp4"],
-            [mrl_to_ftp_file.access, mrl_to_ftp_file.host, mrl_to_ftp_file.path]
+            [mrl_to_ftp_file.access, mrl_to_ftp_file.host, mrl_to_ftp_file.path.full]
         )
 
         mrl_to_ftp_file = mrl.create().from_url("ftp://1.2.3.4:5678/File.mp4")
@@ -132,7 +132,7 @@ class Tests(unittest.TestCase):
             "ftp://1.2.3.4:5678/File.mp4")
         self.assertEqual(
             [mrl.uri.FTP, "1.2.3.4", 5678, "File.mp4"],
-            [mrl_to_ftp_file.access, mrl_to_ftp_file.host, mrl_to_ftp_file.port, mrl_to_ftp_file.path]
+            [mrl_to_ftp_file.access, mrl_to_ftp_file.host, mrl_to_ftp_file.port, mrl_to_ftp_file.path.full]
         )
 
         mrl_to_ftp_file = mrl.create().from_url("ftp://ftp.com:5678/File.mp4")
@@ -141,7 +141,7 @@ class Tests(unittest.TestCase):
             "ftp://ftp.com:5678/File.mp4")
         self.assertEqual(
             [mrl.uri.FTP, "ftp.com", 5678, "File.mp4"],
-            [mrl_to_ftp_file.access, mrl_to_ftp_file.host, mrl_to_ftp_file.port, mrl_to_ftp_file.path]
+            [mrl_to_ftp_file.access, mrl_to_ftp_file.host, mrl_to_ftp_file.port, mrl_to_ftp_file.path.full]
         )
 
         mrl_to_ftp_file = mrl.create().from_url("ftp://admin:administrator@1.2.3.4/File.mp4")
@@ -155,7 +155,7 @@ class Tests(unittest.TestCase):
                 mrl_to_ftp_file.username,
                 mrl_to_ftp_file.password,
                 mrl_to_ftp_file.host,
-                mrl_to_ftp_file.path]
+                mrl_to_ftp_file.path.full]
         )
         mrl_to_ftp_file = mrl.create().from_url("ftp://admin:administrator@ftp.com/File.mp4")
         self.assertEqual(
@@ -168,7 +168,7 @@ class Tests(unittest.TestCase):
                 mrl_to_ftp_file.username,
                 mrl_to_ftp_file.password,
                 mrl_to_ftp_file.host,
-                mrl_to_ftp_file.path]
+                mrl_to_ftp_file.path.full]
         )
         mrl_to_ftp_file = mrl.create().from_url("ftp://admin:administrator@1.2.3.4:5678/File.mp4").using_ip()
         self.assertEqual(
@@ -182,7 +182,7 @@ class Tests(unittest.TestCase):
                 mrl_to_ftp_file.password,
                 mrl_to_ftp_file.host,
                 mrl_to_ftp_file.port,
-                mrl_to_ftp_file.path]
+                mrl_to_ftp_file.path.full]
         )
         mrl_to_ftp_file = mrl.create().from_url("ftp://admin:administrator@ftp.com:5678/File.mp4")
         self.assertEqual(
@@ -196,7 +196,7 @@ class Tests(unittest.TestCase):
                 mrl_to_ftp_file.password,
                 mrl_to_ftp_file.host,
                 mrl_to_ftp_file.port,
-                mrl_to_ftp_file.path]
+                mrl_to_ftp_file.path.full]
         )
 
     def test_validate_errors(self):

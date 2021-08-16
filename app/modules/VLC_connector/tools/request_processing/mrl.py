@@ -6,7 +6,7 @@ from typing import Optional
 class MRL(object):
     def __init__(self):
         self.__access: Optional[str] = None  # Way to obtain media e.g. FILE, FTP
-        self.__path: Optional[str] = None  # Path to file when yet in access
+        self.__path: Optional["MRL.Path"] = None  # Path to file when yet in access
         self.__host: Optional[str] = None  # Host or IP of the resource
         self.__port: Optional[int] = None  # Port of host of the resource
         self.__username: Optional[str] = None  # Username used for authentication of accessing the media
@@ -14,6 +14,61 @@ class MRL(object):
 
     def __str__(self):
         return self.stringify()
+
+    class Path:
+        def __init__(self, path: str):
+            path_split = path.split("/")
+            file_split = path_split[-1].split(".")
+
+            path_split.pop(-1)
+
+            self.__path = "/".join(path_split)
+
+            self.__file_extension = ""
+            if len(file_split) > 1:
+                self.__file_extension = ".{}".format(file_split[-1])
+                file_split.pop(-1)
+
+            self.__filename = ".".join(file_split)
+
+            self.__full_filename = ""
+            if self.__filename:
+                self.__full_filename += self.__filename
+
+            if self.__file_extension:
+                self.__full_filename += self.__file_extension
+
+            self.__full_path = "{}/{}".format(self.__path, self.__full_filename)
+            if not self.__path:
+                self.__full_path = self.__full_filename
+
+            if self.__full_path != path:
+                raise RuntimeError("Something went wrong")
+
+        @property
+        def full(self):
+            """Returns full path"""
+            return self.__full_path
+
+        @property
+        def path(self):
+            """Returns path without file"""
+            return self.__path
+
+        @property
+        def file_extension(self):
+            """Returns file extension without trailing dot"""
+            return self.__file_extension
+
+        @property
+        def file_name(self):
+            """Returns filename without extension"""
+            return self.__filename
+
+        @property
+        def full_filename(self):
+            """Returns filename with extension"""
+            return self.__full_filename
 
     def from_url(self, url: str):
         """
@@ -66,7 +121,8 @@ class MRL(object):
 
                 url_split.pop(0)
 
-        self.__path = "/".join(url_split)
+        # self.__path = "/".join(url_split)
+        self.__path = self.Path("/".join(url_split))
 
         return self
 
@@ -96,7 +152,7 @@ class MRL(object):
             raise ResourceWarning("Password or username set, but not both.")
 
         self.__access = access
-        self.__path = path
+        self.__path = self.Path(path)
         self.__host = host
         self.__port = port
         self.__username = username
@@ -131,7 +187,7 @@ class MRL(object):
         if self.__host:
             mrl = "{}/".format(mrl)
 
-        mrl = "{}{}".format(mrl, self.__path)
+        mrl = "{}{}".format(mrl, self.__path.full)
 
         return mrl
 
@@ -140,7 +196,7 @@ class MRL(object):
         return self.__access
 
     @property
-    def path(self) -> str:
+    def path(self) -> "MRL.Path":
         return self.__path
 
     @property

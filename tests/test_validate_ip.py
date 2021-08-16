@@ -23,6 +23,8 @@ class Tests(unittest.TestCase):
         self.assertEqual(tools.validate_ip("https://localhost"), "localhost")
         self.assertEqual(tools.validate_ip("https://localhost/"), "localhost")
 
+        self.assertEqual(tools.validate_ip("    \n  \r"), "")
+
         with self.assertRaises(ValueError):
             self.assertEqual(tools.validate_ip("https://10.0.0/"), "")
         with self.assertRaises(ValueError):
