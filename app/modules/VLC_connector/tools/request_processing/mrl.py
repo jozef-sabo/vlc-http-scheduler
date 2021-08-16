@@ -30,12 +30,12 @@ class MRL(object):
         # "access://username:password@host:port/path"
         url_split = url.split("//")  # ["access:", "username:password@host:port/path"]
 
-        self.__access = "http://"  # default value
+        self.__access = uri.HTTP  # default value
         if len(url_split) == 2:  # got prefix / access
-            self.__access = url_split[0]
+            self.__access = url_split[0] + "//"
             if url_split[1].startswith("/"):  # "file:///path" -> ["file:", "/path"]
                 self.__access = uri.FILE
-                url_split[1] = url_split[1].removeprefix("/")  # -> ["file:", "path"]
+                url_split[1] = url_split[1][1:]  # -> ["file:", "path"]
 
             url_split.pop(0)  # ["access:", "username:password@host:port/path"] -> ["username:password@host:port/path"]
 
@@ -62,7 +62,7 @@ class MRL(object):
                 auth_data = url_split[0].split(":")  # ["host", "port"]
 
                 if len(auth_data) == 2:
-                    self.__host, self.__port = auth_data
+                    self.__host, self.__port = auth_data[0], int(auth_data[1])
 
                 url_split.pop(0)
 
