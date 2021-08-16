@@ -613,7 +613,6 @@ def parse_used_functions(*args: Callable) -> None:
 
 
 def create_app(queue_to_main: queue.LifoQueue = None, queue_to_scheduler: queue.LifoQueue = None):
-    # TODO: import jobs
 
     while True:
         time.sleep(1)

@@ -1,55 +1,144 @@
 import unittest
-import app.modules.VLC_connector.tools.request_processing.prepare_mrl as prepare_mrl
+import app.modules.VLC_connector.tools.request_processing.mrl as mrl
 
 
 class Tests(unittest.TestCase):
-    def test_validate_file(self):
-        self.assertEqual(prepare_mrl.mrl_prepare(prepare_mrl.uri.FILE, "C:/Users/admin/Downloads/film.mp4"),
-                         "file:///C:/Users/admin/Downloads/film.mp4")
-        self.assertEqual(prepare_mrl.mrl_prepare(prepare_mrl.uri.FILE, "film.mp4"),
-                         "file:///film.mp4")
+    def test_validate_parameters_file(self):
+        self.assertEqual(
+            mrl.create().from_parameters(
+                mrl.uri.FILE,
+                "C:/Users/admin/Downloads/film.mp4"
+            ).stringify(),
+            "file:///C:/Users/admin/Downloads/film.mp4"
+        )
+        self.assertEqual(
+            mrl.create().from_parameters(mrl.uri.FILE, "film.mp4").stringify(),
+            "file:///film.mp4"
+        )
 
-    def test_validate_ftp(self):
-        self.assertEqual(prepare_mrl.mrl_prepare(prepare_mrl.uri.FTP, "File.mp4", ip="1.2.3.4"),
-                         "ftp://1.2.3.4/File.mp4")
-        self.assertEqual(prepare_mrl.mrl_prepare(prepare_mrl.uri.FTP, "File.mp4", ip="ftp.com"),
-                         "ftp://ftp.com/File.mp4")
-        self.assertEqual(prepare_mrl.mrl_prepare(prepare_mrl.uri.FTP, "File.mp4", ip="1.2.3.4", port=5678),
-                         "ftp://1.2.3.4:5678/File.mp4")
-        self.assertEqual(prepare_mrl.mrl_prepare(prepare_mrl.uri.FTP, "File.mp4", ip="ftp.com", port=5678),
-                         "ftp://ftp.com:5678/File.mp4")
-        self.assertEqual(prepare_mrl.mrl_prepare(prepare_mrl.uri.FTP, "File.mp4", ip="1.2.3.4", username="admin",
-                                                 password="administrator"),
-                         "ftp://admin:administrator@1.2.3.4/File.mp4")
-        self.assertEqual(prepare_mrl.mrl_prepare(prepare_mrl.uri.FTP, "File.mp4", ip="ftp.com", username="admin",
-                                                 password="administrator"),
-                         "ftp://admin:administrator@ftp.com/File.mp4")
-        self.assertEqual(prepare_mrl.mrl_prepare(prepare_mrl.uri.FTP, "File.mp4", ip="1.2.3.4", port=5678,
-                                                 username="admin", password="administrator"),
-                         "ftp://admin:administrator@1.2.3.4:5678/File.mp4")
-        self.assertEqual(prepare_mrl.mrl_prepare(prepare_mrl.uri.FTP, "File.mp4", ip="ftp.com", port=5678,
-                                                 username="admin", password="administrator"),
-                         "ftp://admin:administrator@ftp.com:5678/File.mp4")
+    def test_validate_parameters_ftp(self):
+        self.assertEqual(
+            mrl.create().from_parameters(
+                mrl.uri.FTP,
+                "File.mp4",
+                host="1.2.3.4"
+            ).using_ip().stringify(),
+            "ftp://1.2.3.4/File.mp4")
+        self.assertEqual(
+            mrl.create().from_parameters(
+                mrl.uri.FTP,
+                "File.mp4",
+                host="ftp.com"
+            ).stringify(),
+            "ftp://ftp.com/File.mp4")
+        self.assertEqual(
+            mrl.create().from_parameters(
+                mrl.uri.FTP,
+                "File.mp4",
+                host="1.2.3.4",
+                port=5678
+            ).using_ip().stringify(),
+            "ftp://1.2.3.4:5678/File.mp4")
+        self.assertEqual(
+            mrl.create().from_parameters(
+                mrl.uri.FTP,
+                "File.mp4",
+                host="ftp.com",
+                port=5678
+            ).stringify(),
+            "ftp://ftp.com:5678/File.mp4")
+        self.assertEqual(
+            mrl.create().from_parameters(
+                mrl.uri.FTP,
+                "File.mp4",
+                host="1.2.3.4",
+                username="admin",
+                password="administrator"
+            ).using_ip().stringify(),
+            "ftp://admin:administrator@1.2.3.4/File.mp4")
+        self.assertEqual(
+            mrl.create().from_parameters(
+                mrl.uri.FTP,
+                "File.mp4",
+                host="ftp.com",
+                username="admin",
+                password="administrator"
+            ).stringify(),
+            "ftp://admin:administrator@ftp.com/File.mp4")
+        self.assertEqual(
+            mrl.create().from_parameters(
+                mrl.uri.FTP,
+                "File.mp4",
+                host="1.2.3.4",
+                port=5678,
+                username="admin",
+                password="administrator"
+            ).using_ip().stringify(),
+            "ftp://admin:administrator@1.2.3.4:5678/File.mp4")
+        self.assertEqual(
+            mrl.create().from_parameters(
+                mrl.uri.FTP,
+                "File.mp4",
+                host="ftp.com",
+                port=5678,
+                username="admin",
+                password="administrator"
+            ).stringify(),
+            "ftp://admin:administrator@ftp.com:5678/File.mp4")
 
+    def test_validate_url_file(self):
+        mrl_to_file = mrl.create().from_url("file:///C:/Users/admin/Downloads/film.mp4")
+        self.assertEqual(
+            mrl_to_file.stringify(),
+            "file:///C:/Users/admin/Downloads/film.mp4"
+        )
+        self.assertEqual(
+            [mrl.uri.FILE, "C:/Users/admin/Downloads/film.mp4"],
+            [mrl_to_file.access, mrl_to_file.path]
+        )
+
+        mrl_to_file = mrl.create().from_url("file:///film.mp4")
+        self.assertEqual(
+            mrl_to_file.stringify(),
+            "file:///film.mp4"
+        )
+        self.assertEqual(
+            [mrl.uri.FILE, "film.mp4"],
+            [mrl_to_file.access, mrl_to_file.path]
+        )
+
+    def test_validate_errors(self):
         with self.assertRaises(ResourceWarning):
-            prepare_mrl.mrl_prepare(prepare_mrl.uri.FTP, "File.mp4")
+            mrl.create().from_parameters(mrl.uri.FTP, "File.mp4")
         with self.assertRaises(ResourceWarning):
-            prepare_mrl.mrl_prepare(prepare_mrl.uri.FTP, "File.mp4", username="admin")
+            mrl.create().from_parameters(mrl.uri.FTP, "File.mp4", username="admin")
         with self.assertRaises(ResourceWarning):
-            prepare_mrl.mrl_prepare(prepare_mrl.uri.FTP, "File.mp4", username="admin", password="administrator")
+            mrl.create().from_parameters(mrl.uri.FTP, "File.mp4", username="admin", password="administrator")
         with self.assertRaises(ResourceWarning):
-            prepare_mrl.mrl_prepare(prepare_mrl.uri.FTP, "File.mp4", password="administrator")
+            mrl.create().from_parameters(mrl.uri.FTP, "File.mp4", password="administrator")
         with self.assertRaises(ResourceWarning):
-            prepare_mrl.mrl_prepare(prepare_mrl.uri.FTP, "File.mp4", username="admin", port=5678)
+            mrl.create().from_parameters(mrl.uri.FTP, "File.mp4", username="admin", port=5678)
         with self.assertRaises(ResourceWarning):
-            prepare_mrl.mrl_prepare(prepare_mrl.uri.FTP, "File.mp4", username="admin", password="administrator",
-                                    port=5678)
+            mrl.create().from_parameters(mrl.uri.FTP, "File.mp4", username="admin", password="administrator", port=5678)
         with self.assertRaises(ResourceWarning):
-            prepare_mrl.mrl_prepare(prepare_mrl.uri.FTP, "File.mp4", password="administrator", port=5678)
+            mrl.create().from_parameters(mrl.uri.FTP, "File.mp4", password="administrator", port=5678)
         with self.assertRaises(ResourceWarning):
-            prepare_mrl.mrl_prepare(prepare_mrl.uri.FTP, "File.mp4", ip="1.2.3.4", username="admin")
+            mrl.create().from_parameters(mrl.uri.FTP, "File.mp4", host="1.2.3.4", username="admin")
         with self.assertRaises(ResourceWarning):
-            prepare_mrl.mrl_prepare(prepare_mrl.uri.FTP, "File.mp4", ip="ftp.com", username="admin")
+            mrl.create().from_parameters(mrl.uri.FTP, "File.mp4", host="ftp.com", username="admin")
+
+        with self.assertRaises(ValueError):
+            mrl.create().from_parameters(
+                mrl.uri.FTP,
+                "File.mp4",
+                host="ftp.com",
+                port=5678,
+                username="admin",
+                password="administrator"
+            ).using_ip()
+
+        with self.assertRaises(ValueError):
+            mrl.create().from_url("ftp://admin:administrator@ftp.com:5678/File.mp4").using_ip()
 
 
 if __name__ == '__main__':

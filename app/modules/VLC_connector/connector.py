@@ -60,7 +60,9 @@ class Connector(object):
         username = kwargs.get("username", None)
         password = kwargs.get("password", None)
 
-        mrl = tools.request_processing.mrl_prepare(access, path, ip, port, username, password)
+        mrl = tools.request_processing.mrl.create().from_parameters(
+            access, path, ip, port, username, password
+        ).stringify()
         actions.play(self, inp=mrl)
 
     @dispatch(int)
