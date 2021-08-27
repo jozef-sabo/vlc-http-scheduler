@@ -5,8 +5,6 @@ from typing import List, Optional
 import os
 import datetime
 
-NOT_INITIALIZED_ERROR: RuntimeError = RuntimeError("Media not initialized yet")
-
 
 def SHA_256(path: str) -> str:
     sha256_hash = hashlib.sha256()
@@ -28,7 +26,12 @@ class MediaHolder:
     def __init__(self) -> None:
         self.media: List[Media] = []
 
-    def add(self, media_resource_locator: mrl.MRL):
+    def add(self, media_resource_locator: mrl.MRL) -> "Media":
+        """
+        Adds and ingests media by MRL.
+        :param media_resource_locator: MRL object of inserted media.
+        :return: instance of Media class
+        """
         new_media = Media(media_resource_locator)
         new_media.ingest()
 
@@ -39,6 +42,12 @@ class MediaHolder:
         return new_media
 
     def rename_media(self, renamed_media: "Media", new_display_name: str) -> None:
+        """
+        Renames any media of Media class. If renaming causes duplicate name in MediaHolder, raises error.
+        :param renamed_media: Media to be renamed
+        :param new_display_name: New display name of renamed_media
+        :return: None
+        """
         if renamed_media not in self.media:
             renamed_media.latest_display_name, renamed_media.display_name = renamed_media.display_name, new_display_name
             return
@@ -49,15 +58,25 @@ class MediaHolder:
         renamed_media.latest_display_name, renamed_media.display_name = renamed_media.display_name, new_display_name
 
     def get_media(self, display_name: str = None):
+        """
+        Returns all Media unless display_name is set; then returns only Media with that name
+        :param display_name: [Optional] Name of media
+        :return: Media or list of Media
+        """
         if not display_name:
             return self.media[:]
 
-        searched_media = [media for media in self.media if media.display_name == display_name][0]
+        searched_media = [media for media in self.media if media.display_name == display_name]
 
-        return searched_media
+        return searched_media[0] if len(searched_media) != 0 else None
 
     def check_integrity(self, with_deletion: bool = False) -> List["Media"]:
-        not_capable_media = []
+        """
+        Checks an integrity of all Media in MediaHolder. If some is violated, returns it in list.
+        :param with_deletion: [Optional] If True, removes the media from MediaHolder when integrity is violated.
+        :return: List of integrity violated media.
+        """
+        not_capable_media_order = []
 
         for media_order in range(len(self.media)):
             media = self.media[media_order]
@@ -65,13 +84,13 @@ class MediaHolder:
             media_integrity = media.check_integrity()
 
             if not media_integrity:
-                not_capable_media.append(media_order)
+                not_capable_media_order.append(media_order)
+
+        not_capable_media = [self.media[media_order] for media_order in not_capable_media_order]
 
         if with_deletion:
-            for media_order in not_capable_media[::-1]:
+            for media_order in not_capable_media_order[::-1]:
                 self.media.pop(media_order)
-
-        not_capable_media = [self.media[media_order] for media_order in not_capable_media]
 
         return not_capable_media
 
@@ -95,7 +114,7 @@ class Media(object):
 
         self.__ingested: bool = False
 
-    def ingest(self, offline_accessible: bool = False):
+    def ingest(self, offline_accessible: bool = False) -> None:
         if self.__ingested:
             return
 
@@ -110,7 +129,12 @@ class Media(object):
 
         self.__ingested = True
 
-    def media_of_type(self, media_type: str):
+    def media_of_type(self, media_type: str) -> "Media":
+        """
+        Sets type of media being added. Valid one is only constant in types.together
+        :param media_type: String or constant which represents type of media
+        :return: instance of Media class
+        """
         media_type_normalized = types.together.get(media_type)
         if media_type_normalized is None:
             raise ValueError("Media type is not correct")
@@ -164,7 +188,7 @@ class Media(object):
         return self
 
     def check_integrity(self) -> bool:
-        if self.mrl.access == mrl.uri.FILE:  # path refers to file
+        if self.mrl.access == mrl.uri.FILE:  # path refers to file, not FTP and others
             if not os.path.isfile(self.mrl.path.full):
                 return False
 
@@ -176,15 +200,38 @@ class Media(object):
         else:
             pass
 
-        if self.creation_date != datetime.datetime.now():
-            return False
-
         if not self.__ingested:
             return False
 
         return True
 
 
-def create() -> MediaHolder:
-    """Creates MediaHolder instance"""
-    return MediaHolder()
+default_media_holder = MediaHolder()
+
+
+def add(media_resource_locator: mrl.MRL) -> "Media":
+    """Calls :meth:`add <MediaHolder.add>` on the
+    :data:`default MediaHolder instance <default_media_holder>`.
+    """
+    return default_media_holder.add(media_resource_locator)
+
+
+def rename_media(renamed_media: "Media", new_display_name: str) -> None:
+    """Calls :meth:`rename_media <MediaHolder.rename_media>` on the
+    :data:`default MediaHolder instance <default_media_holder>`.
+    """
+    return default_media_holder.rename_media(renamed_media, new_display_name)
+
+
+def get_media(display_name: str = None):
+    """Calls :meth:`get_media <MediaHolder.get_media>` on the
+    :data:`default MediaHolder instance <default_media_holder>`.
+    """
+    return default_media_holder.get_media(display_name)
+
+
+def check_integrity(with_deletion: bool = False) -> List["Media"]:
+    """Calls :meth:`get_media <MediaHolder.check_integrity>` on the
+    :data:`default MediaHolder instance <default_media_holder>`.
+    """
+    return default_media_holder.check_integrity(with_deletion)
