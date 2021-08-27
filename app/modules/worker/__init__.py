@@ -1,7 +1,5 @@
 import app.modules.worker.MediaHolder as MediaHolder
 
-mediaholder = MediaHolder.create()
-
 
 if __name__ == "__main__":
     pass

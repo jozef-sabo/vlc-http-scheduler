@@ -35,9 +35,31 @@ class MediaHolder:
         new_media = Media(media_resource_locator)
         new_media.ingest()
 
-        common_name = [media for media in self.media if new_media.display_name == media.display_name]
+        common_name = [selected_media for selected_media in self.media if
+                       new_media.display_name == selected_media.display_name]
         if common_name:
             raise ValueError("Display name must be unique")
+        self.media.append(new_media)
+        return new_media
+
+    def add_using_name(self, media_resource_locator: mrl.MRL, name: str) -> "Media":
+        """
+        Adds and ingests media by MRL using given name.
+        :param name: Display name of Media
+        :param media_resource_locator: MRL object of inserted media.
+        :return: instance of Media class
+        """
+
+        common_name = [selected_media for selected_media in self.media if
+                       name == selected_media.display_name]
+
+        if common_name:
+            raise ValueError("Display name must be unique")
+
+        new_media = Media(media_resource_locator)
+        new_media.ingest()
+        self.rename_media(new_media, name)
+
         self.media.append(new_media)
         return new_media
 
@@ -52,7 +74,8 @@ class MediaHolder:
             renamed_media.latest_display_name, renamed_media.display_name = renamed_media.display_name, new_display_name
             return
 
-        common_name = [media for media in self.media if renamed_media.display_name == media.display_name]
+        common_name = [selected_media for selected_media in self.media
+                       if new_display_name == selected_media.display_name]
         if common_name:
             raise ValueError("Display name must be unique")
         renamed_media.latest_display_name, renamed_media.display_name = renamed_media.display_name, new_display_name
@@ -63,10 +86,11 @@ class MediaHolder:
         :param display_name: [Optional] Name of media
         :return: Media or list of Media
         """
-        if not display_name:
+        if display_name is None:
             return self.media[:]
 
-        searched_media = [media for media in self.media if media.display_name == display_name]
+        searched_media = [selected_media for selected_media in self.media
+                          if selected_media.display_name == display_name]
 
         return searched_media[0] if len(searched_media) != 0 else None
 
@@ -79,9 +103,9 @@ class MediaHolder:
         not_capable_media_order = []
 
         for media_order in range(len(self.media)):
-            media = self.media[media_order]
+            selected_media = self.media[media_order]
 
-            media_integrity = media.check_integrity()
+            media_integrity = selected_media.check_integrity()
 
             if not media_integrity:
                 not_capable_media_order.append(media_order)
@@ -93,6 +117,18 @@ class MediaHolder:
                 self.media.pop(media_order)
 
         return not_capable_media
+
+    def remove_media(self, display_name: str = None) -> None:
+        """
+        Removes all Media unless display_name is set; then removes only Media with that name
+        :param display_name: [Optional] Name of media
+        :return: Media or list of Media
+        """
+        if not display_name:
+            self.media = []
+            return
+
+        [self.media.remove(selected_media) for selected_media in self.media if selected_media.display_name == display_name]
 
 
 class Media(object):
@@ -107,7 +143,9 @@ class Media(object):
         # keeps track of last used display_name
         self.latest_display_name = self.display_name
 
-        self.type: Optional[str] = None
+        # if none type set
+        self.type: str = types.FEATURE
+
         self.SHA_256: Optional[str] = None
         self.size: Optional[int] = None
         self.creation_date: Optional[datetime.datetime] = None
@@ -117,6 +155,8 @@ class Media(object):
     def ingest(self, offline_accessible: bool = False) -> None:
         if self.__ingested:
             return
+
+        # TODO: check If playable in VLC
 
         if self.mrl.access == mrl.uri.FILE:  # path refers to file
             self.SHA_256 = SHA_256(self.mrl.path.full)
@@ -131,13 +171,15 @@ class Media(object):
 
     def media_of_type(self, media_type: str) -> "Media":
         """
-        Sets type of media being added. Valid one is only constant in types.together
+        Sets type of media being added. Valid one is only constant in types.together or names of types.
         :param media_type: String or constant which represents type of media
         :return: instance of Media class
         """
         media_type_normalized = types.together.get(media_type)
         if media_type_normalized is None:
-            raise ValueError("Media type is not correct")
+            if media_type not in types.together.values():
+                raise ValueError("Media type is not correct")
+            media_type_normalized = media_type
 
         self.type = media_type_normalized
         return self
@@ -208,12 +250,21 @@ class Media(object):
 
 default_media_holder = MediaHolder()
 
+media = default_media_holder.media
+
 
 def add(media_resource_locator: mrl.MRL) -> "Media":
     """Calls :meth:`add <MediaHolder.add>` on the
     :data:`default MediaHolder instance <default_media_holder>`.
     """
     return default_media_holder.add(media_resource_locator)
+
+
+def add_using_name(media_resource_locator: mrl.MRL, name: str) -> "Media":
+    """Calls :meth:`add <MediaHolder.add_sung_name>` on the
+    :data:`default MediaHolder instance <default_media_holder>`.
+    """
+    return default_media_holder.add_using_name(media_resource_locator, name)
 
 
 def rename_media(renamed_media: "Media", new_display_name: str) -> None:
@@ -228,6 +279,13 @@ def get_media(display_name: str = None):
     :data:`default MediaHolder instance <default_media_holder>`.
     """
     return default_media_holder.get_media(display_name)
+
+
+def remove_media(display_name: str = None):
+    """Calls :meth:`get_media <MediaHolder.remove_media>` on the
+    :data:`default MediaHolder instance <default_media_holder>`.
+    """
+    return default_media_holder.remove_media(display_name)
 
 
 def check_integrity(with_deletion: bool = False) -> List["Media"]:

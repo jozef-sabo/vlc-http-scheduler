@@ -83,7 +83,8 @@ class MRL(object):
         # ftp://admin:administrator@ftp.com:5678/File.mp4
 
         # "access://username:password@host:port/path"
-        url_split = url.split("//")  # ["access:", "username:password@host:port/path"]
+        url_normalized = url.replace("\\", "/")
+        url_split = url_normalized.split("//")  # ["access:", "username:password@host:port/path"]
 
         self.__access = uri.HTTP  # default value
         if len(url_split) == 2:  # got prefix / access
