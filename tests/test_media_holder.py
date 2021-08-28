@@ -21,13 +21,10 @@ class Tests(unittest.TestCase):
             for i in range(10000):
                 opened_file_2.write("1000101")
 
-    @classmethod
-    def setUp(cls) -> None:
-        cls.media1 = MediaHolder.add(mrl.create().from_url(mrl.uri.FILE + file1))
-        cls.media2 = MediaHolder.add(mrl.create().from_url(mrl.uri.FILE + file2))
+    def setUp(self) -> None:
+        self.media1 = MediaHolder.add(mrl.create().from_url(mrl.uri.FILE + file1))
+        self.media2 = MediaHolder.add(mrl.create().from_url(mrl.uri.FILE + file2))
 
-
-    @classmethod
     def tearDown(self) -> None:
         MediaHolder.remove_media()
 
