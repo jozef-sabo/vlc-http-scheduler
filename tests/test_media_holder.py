@@ -26,6 +26,8 @@ class Tests(unittest.TestCase):
         cls.media1 = MediaHolder.add(mrl.create().from_url(mrl.uri.FILE + file1))
         cls.media2 = MediaHolder.add(mrl.create().from_url(mrl.uri.FILE + file2))
 
+
+    @classmethod
     def tearDown(self) -> None:
         MediaHolder.remove_media()
 
