@@ -7,10 +7,10 @@ class MRL(object):
     def __init__(self):
         self.__access: Optional[str] = None  # Way to obtain media e.g. FILE, FTP
         self.__path: Optional["MRL.Path"] = None  # Path to file when yet in access
-        self.__host: Optional[str] = None  # Host or IP of the resource
-        self.__port: Optional[int] = None  # Port of host of the resource
-        self.__username: Optional[str] = None  # Username used for authentication of accessing the media
-        self.__password: Optional[str] = None  # Password used for authentication of accessing the media
+        self.host: Optional[str] = None  # Host or IP of the resource
+        self.port: Optional[int] = None  # Port of host of the resource
+        self.username: Optional[str] = None  # Username used for authentication of accessing the media
+        self.password: Optional[str] = None  # Password used for authentication of accessing the media
 
     def __str__(self):
         return self.stringify()
@@ -25,7 +25,7 @@ class MRL(object):
             self.__path = "/".join(path_split)
 
             self.__file_extension = ""
-            if len(file_split) > 1:
+            if len(file_split) > 1 and not not file_split[0]:  # if files are named for example .gitignore
                 self.__file_extension = ".{}".format(file_split[-1])
                 file_split.pop(-1)
 
@@ -57,7 +57,7 @@ class MRL(object):
 
         @property
         def file_extension(self):
-            """Returns file extension without trailing dot"""
+            """Returns file extension with trailing dot"""
             return self.__file_extension
 
         @property
@@ -86,25 +86,33 @@ class MRL(object):
         url_normalized = url.replace("\\", "/")
         url_split = url_normalized.split("//")  # ["access:", "username:password@host:port/path"]
 
-        self.__access = uri.HTTP  # default value
-        if len(url_split) == 2:  # got prefix / access
-            self.__access = url_split[0] + "//"
-            if url_split[1].startswith("/"):  # "file:///path" -> ["file:", "/path"]
-                self.__access = uri.FILE
-                url_split[1] = url_split[1][1:]  # -> ["file:", "path"]
+        self.__access = uri.FILE  # default value
 
-            url_split.pop(0)  # ["access:", "username:password@host:port/path"] -> ["username:password@host:port/path"]
+        #                 POSSIBLE INPUTS                 | length == 1 | initial / | is file |
+        # /folder1/folder2/file         -> FILE           |      1      |     1     |    1    | ----> IT'S OR, not OR
+        # folder1/folder2/file          -> FILE           |      1      |     0     |    1    | ---   is AND with both
+        # file:///folder1/folder2/file  -> FILE           |      0      |     1     |    1    | ---   inputs inverted
+        # http://folder1/folder2/file   -> OTHER PROTOCOL |      0      |     0     |    0    |
+
+        if (not len(url_split) == 1) and (not url_split[-1].startswith("/")):  # only possibility when it's not FILE
+            self.__access = url_split[0] + "//"
+
+        # ["access:", "username:password@host:port/path"] -> ["username:password@host:port/path"]
+        url_split = [url_split[-1]]
+
+        if url_split[0].startswith("/"):  # "file:///path" -> ["file:", "/path"]
+            url_split[0] = url_split[0][1:]  # -> ["file:", "path"]
 
         url_split = url_split[0].split("@")  # ["username:password", "host:port/path"]
         if len(url_split) == 2:  # got authentication
             if url_split[0].startswith(":"):
                 raise ResourceWarning("Password or username set, but not both.")
 
-            self.__username = url_split[0]  # default value if has not a second value
+            self.username = url_split[0]  # default value if has not a second value
             auth_data = url_split[0].split(":")  # ["username", "password"]
 
             if len(auth_data) == 2:
-                self.__username, self.__password = auth_data
+                self.username, self.password = auth_data
 
             url_split.pop(0)  # ["username:password", "host:port/path"] -> ["host:port/path"]
 
@@ -114,11 +122,11 @@ class MRL(object):
                 if url_split[0].startswith(":"):
                     raise ResourceWarning("IP of external file is not set.")
 
-                self.__host = url_split[0]  # default value if has not a second value
+                self.host = url_split[0]  # default value if has not a second value
                 auth_data = url_split[0].split(":")  # ["host", "port"]
 
                 if len(auth_data) == 2:
-                    self.__host, self.__port = auth_data[0], int(auth_data[1])
+                    self.host, self.port = auth_data[0], int(auth_data[1])
 
                 url_split.pop(0)
 
@@ -154,38 +162,38 @@ class MRL(object):
 
         self.__access = access
         self.__path = self.Path(path)
-        self.__host = host
-        self.__port = port
-        self.__username = username
-        self.__password = password
+        self.host = host
+        self.port = port
+        self.username = username
+        self.password = password
 
         return self
 
     def using_ip(self):
         """Checks if IP is correct. If not, throws ValueError."""
-        self.__host = validate_ip(self.__host)
+        self.host = validate_ip(self.host)
         return self
 
     def stringify(self) -> str:
         """Returns prepared string of MRL."""
         mrl = self.__access
 
-        if self.__username:
-            mrl = "{}{}".format(mrl, self.__username)
+        if self.username:
+            mrl = "{}{}".format(mrl, self.username)
 
-        if self.__password:
-            mrl = "{}:{}".format(mrl, self.__password)
+        if self.password:
+            mrl = "{}:{}".format(mrl, self.password)
 
-        if self.__username or self.__password:
+        if self.username or self.password:
             mrl = "{}@".format(mrl)
 
-        if self.__host:
-            mrl = "{}{}".format(mrl, self.__host)
+        if self.host:
+            mrl = "{}{}".format(mrl, self.host)
 
-        if self.__port:
-            mrl = "{}:{}".format(mrl, self.__port)
+        if self.port:
+            mrl = "{}:{}".format(mrl, self.port)
 
-        if self.__host:
+        if self.host:
             mrl = "{}/".format(mrl)
 
         mrl = "{}{}".format(mrl, self.__path.full)
@@ -199,38 +207,6 @@ class MRL(object):
     @property
     def path(self) -> "MRL.Path":
         return self.__path
-
-    @property
-    def host(self) -> str:
-        return self.__host
-
-    @host.setter
-    def host(self, host):
-        self.__host = host
-
-    @property
-    def port(self) -> int:
-        return self.__port
-
-    @port.setter
-    def port(self, port):
-        self.__port = port
-
-    @property
-    def username(self) -> str:
-        return self.__username
-
-    @username.setter
-    def username(self, username):
-        self.__username = username
-
-    @property
-    def password(self) -> str:
-        return self.__password
-
-    @password.setter
-    def password(self, password):
-        self.__password = password
 
 
 def create() -> MRL:
