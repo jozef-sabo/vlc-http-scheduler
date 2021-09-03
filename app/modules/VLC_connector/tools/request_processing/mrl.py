@@ -1,6 +1,7 @@
 import app.modules.VLC_connector.constants.uri as uri
 from .. import validate_ip
 from typing import Optional
+import re
 
 
 class MRL(object):
@@ -41,6 +42,8 @@ class MRL(object):
             self.__full_path = "{}/{}".format(self.__path, self.__full_filename)
             if not self.__path:
                 self.__full_path = self.__full_filename
+                if self.__path == "" and path != self.__full_filename:
+                    self.__full_path = "/{}".format(self.__full_filename)
 
             if self.__full_path != path:
                 raise RuntimeError("Something went wrong")
@@ -70,12 +73,16 @@ class MRL(object):
             """Returns filename with extension"""
             return self.__full_filename
 
-    def from_url(self, url: str):
+    def from_url(self, url: str, **kwargs):
         """
         Sets parameters from user's inserted URL.
         :param url: URL which refers to media. For path division is used a slash "/"
-        :return:
+        :return: MRL object
         """
+        # /folder1/folder2/file
+        # folder1/folder2/file
+        # file:///folder1/folder2/file
+        # file:///C:/folder1/folder2/file
         # ftp://ftp.com/File.mp4
         # ftp://admin@ftp.com/File.mp4
         # ftp://admin@ftp.com:5678/File.mp4
@@ -88,19 +95,18 @@ class MRL(object):
 
         self.__access = uri.FILE  # default value
 
-        #                 POSSIBLE INPUTS                 | length == 1 | initial / | is file |
-        # /folder1/folder2/file         -> FILE           |      1      |     1     |    1    | ----> IT'S OR, not OR
-        # folder1/folder2/file          -> FILE           |      1      |     0     |    1    | ---   is AND with both
-        # file:///folder1/folder2/file  -> FILE           |      0      |     1     |    1    | ---   inputs inverted
-        # http://folder1/folder2/file   -> OTHER PROTOCOL |      0      |     0     |    0    |
-
-        if (not len(url_split) == 1) and (not url_split[-1].startswith("/")):  # only possibility when it's not FILE
-            self.__access = url_split[0] + "//"
+        if not len(url_split) == 1:
+            self.__access = url_split[0].lower() + "//"
+            if kwargs.get("check_access", False):
+                if uri.uri_dict.get(self.__access) is None:
+                    raise ValueError('Given access "{}" is not supported.'.format(self.__access))
 
         # ["access:", "username:password@host:port/path"] -> ["username:password@host:port/path"]
         url_split = [url_split[-1]]
 
-        if url_split[0].startswith("/"):  # "file:///path" -> ["file:", "/path"]
+        win_path_regex = "^/[A-Z]:/"
+        # check if WIN like or UNIX like path, if WIN ["file:", "/path"] -> ["file:", "path"]
+        if re.search(win_path_regex, url_split[0]):
             url_split[0] = url_split[0][1:]  # -> ["file:", "path"]
 
         url_split = url_split[0].split("@")  # ["username:password", "host:port/path"]
@@ -196,7 +202,10 @@ class MRL(object):
         if self.host:
             mrl = "{}/".format(mrl)
 
-        mrl = "{}{}".format(mrl, self.__path.full)
+        if self.__access == "file://" and not self.path.full.startswith("/"):
+            mrl = "{}/{}".format(mrl, self.__path.full)
+        else:
+            mrl = "{}{}".format(mrl, self.__path.full)
 
         return mrl
 

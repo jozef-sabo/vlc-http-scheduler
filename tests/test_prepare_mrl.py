@@ -15,6 +15,10 @@ class Tests(unittest.TestCase):
             mrl.create().from_parameters(mrl.uri.FILE, "film.mp4").stringify(),
             "file:///film.mp4"
         )
+        self.assertEqual(
+            mrl.create().from_parameters(mrl.uri.FILE, "/film.mp4").stringify(),
+            "file:///film.mp4"
+        )
 
     def test_validate_parameters_ftp(self):
         self.assertEqual(
@@ -103,10 +107,9 @@ class Tests(unittest.TestCase):
             "file:///film.mp4"
         )
         self.assertEqual(
-            [mrl.uri.FILE, "film.mp4"],
+            [mrl.uri.FILE, "/film.mp4"],
             [mrl_to_file.access, mrl_to_file.path.full]
         )
-
         mrl_to_file = mrl.create().from_url("C:/Users/admin/Downloads/film.mp4")
         self.assertEqual(
             mrl_to_file.stringify(),
@@ -116,7 +119,6 @@ class Tests(unittest.TestCase):
             [mrl.uri.FILE, "C:/Users/admin/Downloads/film.mp4"],
             [mrl_to_file.access, mrl_to_file.path.full]
         )
-
         mrl_to_file = mrl.create().from_url("film.mp4")
         self.assertEqual(
             mrl_to_file.stringify(),
@@ -124,6 +126,15 @@ class Tests(unittest.TestCase):
         )
         self.assertEqual(
             [mrl.uri.FILE, "film.mp4"],
+            [mrl_to_file.access, mrl_to_file.path.full]
+        )
+        mrl_to_file = mrl.create().from_url("/film.mp4")
+        self.assertEqual(
+            mrl_to_file.stringify(),
+            "file:///film.mp4"
+        )
+        self.assertEqual(
+            [mrl.uri.FILE, "/film.mp4"],
             [mrl_to_file.access, mrl_to_file.path.full]
         )
 
