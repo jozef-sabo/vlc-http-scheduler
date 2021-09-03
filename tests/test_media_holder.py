@@ -13,11 +13,11 @@ class Tests(unittest.TestCase):
     @classmethod
     def setUpClass(cls) -> None:
         os.mkdir(folder)
-        with open(file1, "w+", encoding="UTF-8") as opened_file_1:
+        with open(file1, "w+", encoding="UTF-8", newline="\r\n") as opened_file_1:
             for i in range(1000):
                 opened_file_1.write("abcdef\n")
 
-        with open(file2, "w+", encoding="UTF-8") as opened_file_2:
+        with open(file2, "w+", encoding="UTF-8", newline="\r\n") as opened_file_2:
             for i in range(10000):
                 opened_file_2.write("1000101")
 
