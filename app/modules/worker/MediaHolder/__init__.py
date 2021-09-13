@@ -128,7 +128,8 @@ class MediaHolder:
             self.media = []
             return
 
-        [self.media.remove(selected_media) for selected_media in self.media if selected_media.display_name == display_name]
+        [self.media.remove(selected_media) for selected_media in self.media
+         if selected_media.display_name == display_name]
 
 
 class Media(object):
@@ -137,7 +138,7 @@ class Media(object):
 
         #  keeps only filename without path and extension
         self.display_name = self.mrl.path.file_name
-        if display_name:
+        if display_name is not None:
             self.display_name = display_name
 
         # keeps track of last used display_name

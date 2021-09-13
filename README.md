@@ -1,4 +1,6 @@
 # VLC Scheduler
+[![Tests](https://github.com/jozef-sabo/vlc-http-scheduler/actions/workflows/main.yml/badge.svg)](https://github.com/jozef-sabo/vlc-http-scheduler/actions/workflows/main.yml)   
+
 This project is made using mainly Python for VLC as a solution for an automatic film scheduling problem. It is focused mainly for cinemas, but can be used anywhere. The idea is derived from implementation of the same problem in cinema servers (as Dolby or Christie). However instead of using _Digital Cinema Packages_ (_DCP_ s), VLC uses _.mp4_, _.mkv_ and similar filetypes.
 
 ## Implementation

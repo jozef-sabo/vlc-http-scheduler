@@ -87,5 +87,39 @@ class Tests(unittest.TestCase):
         media4 = MediaHolder.add_using_name(mrl.create().from_url(mrl.uri.FILE + file2), "file4").psa
         self.assertEqual(media4.type, MediaHolder.types.PSA)
 
+        media4 = media4.feature
+        self.assertEqual(media4.type, MediaHolder.types.FEATURE)
+
+        media4 = media4.trailer
+        self.assertEqual(media4.type, MediaHolder.types.TRAILER)
+
+        media4 = media4.teaser
+        self.assertEqual(media4.type, MediaHolder.types.TEASER)
+
+        media4 = media4.test
+        self.assertEqual(media4.type, MediaHolder.types.TEST)
+
+        media4 = media4.rating
+        self.assertEqual(media4.type, MediaHolder.types.RATING)
+
+        media4 = media4.advertisement
+        self.assertEqual(media4.type, MediaHolder.types.ADVERTISEMENT)
+
+        media4 = media4.short
+        self.assertEqual(media4.type, MediaHolder.types.SHORT)
+
+        media4 = media4.transitional
+        self.assertEqual(media4.type, MediaHolder.types.TRANSITIONAL)
+
         with self.assertRaises(ValueError):
             media3.media_of_type("Fairy-tale")
+
+    def test_remove_media(self):
+        MediaHolder.remove_media("file3")
+        self.assertEqual(MediaHolder.get_media(), [self.media1, self.media2])
+
+        MediaHolder.remove_media("file1")
+        self.assertEqual(MediaHolder.get_media(), [self.media2])
+
+        MediaHolder.remove_media()
+        self.assertEqual(MediaHolder.get_media(), [])
