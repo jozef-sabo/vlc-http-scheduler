@@ -1,6 +1,6 @@
-import app.modules.VLC_connector.connector as Connector
+import app.modules.vlc_connector.connector as Connector
 import requests
-import app.modules.VLC_connector.constants as constants
+import app.modules.vlc_connector.constants as constants
 
 
 def check(connect: Connector):

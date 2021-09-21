@@ -1,8 +1,8 @@
 import unittest
 import os
 import shutil
-import app.modules.worker.MediaHolder as MediaHolder
-import app.modules.VLC_connector.tools.request_processing.mrl as mrl
+import app.modules.media_holder as MediaHolder
+import app.modules.url_processor.mrl as mrl
 
 folder = os.path.abspath(os.path.join(os.getcwd(), "test"))
 file1 = os.path.abspath(os.path.join(os.getcwd(), "test/file1.txt"))

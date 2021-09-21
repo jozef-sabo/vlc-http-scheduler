@@ -1,7 +1,7 @@
 import unittest
 import os
 import shutil
-import app.modules.VLC_connector.tools.system.prepare_folder as prepare_folder
+import app.modules.vlc_connector.tools.system.prepare_folder as prepare_folder
 
 
 class Tests(unittest.TestCase):

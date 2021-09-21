@@ -1,5 +1,5 @@
-from . import find_system
-from ...constants import system_type
+from app.modules import system
+from app.constants import system_type
 
 
 def get_vlc_install_path() -> str:
@@ -8,9 +8,9 @@ def get_vlc_install_path() -> str:
     :return: Install path of VLC
     :rtype: str
     """
-    system = find_system.get_os()
+    system_name = system.get_os()
 
-    if system == system_type.WINDOWS or system == system_type.WINDOWS_CYGWIN:
+    if system_name == system_type.WINDOWS or system_name == system_type.WINDOWS_CYGWIN:
         return __get_path_win()
 
     #  TODO: implement more systems

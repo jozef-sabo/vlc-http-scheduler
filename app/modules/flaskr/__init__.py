@@ -1,7 +1,7 @@
 import os
 from flask import Flask
 from flask import redirect
-import app.modules.VLC_connector.connector as connector
+import app.modules.vlc_connector.connector as connector
 import queue
 
 

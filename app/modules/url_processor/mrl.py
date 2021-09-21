@@ -1,5 +1,5 @@
-import app.modules.VLC_connector.constants.uri as uri
-from .. import validate_ip
+import app.constants.uri as uri
+from app.modules.url_processor import validate_ip
 from typing import Optional
 import re
 

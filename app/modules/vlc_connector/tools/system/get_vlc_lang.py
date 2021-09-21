@@ -1,8 +1,8 @@
 # import find_system
-from . import find_system
+from app.modules import system
 # from app.modules.VLC_connector.constants import system_type
 # from app.modules.VLC_connector.constants import language
-from ...constants import system_type
+from app.constants import system_type
 from ...constants import language
 
 
@@ -12,9 +12,9 @@ def get_vlc_lang() -> str:
     :return: VLC language in iso-639 format
     :rtype: str
     """
-    system = find_system.get_os()
+    system_name = system.get_os()
 
-    if system == system_type.WINDOWS or system == system_type.WINDOWS_CYGWIN:
+    if system_name == system_type.WINDOWS or system_name == system_type.WINDOWS_CYGWIN:
         return __get_lang_win()
 
     #  TODO: implement more systems
@@ -40,9 +40,9 @@ def __get_lang_win() -> str:
 
 
 def get_vlc_auto_lang() -> str:
-    system = find_system.get_os()
+    system_name = system.get_os()
 
-    if system == system_type.WINDOWS or system == system_type.WINDOWS_CYGWIN:
+    if system_name == system_type.WINDOWS or system_name == system_type.WINDOWS_CYGWIN:
         return __get_auto_lang_win()
 
     #  TODO: implement more systems

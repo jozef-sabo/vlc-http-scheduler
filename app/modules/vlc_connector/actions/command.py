@@ -1,5 +1,5 @@
 import requests
-from app.modules.VLC_connector import tools
+from app.modules.vlc_connector import tools
 from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from .. import connector

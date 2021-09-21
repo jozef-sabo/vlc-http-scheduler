@@ -1,5 +1,5 @@
 import unittest
-import app.modules.VLC_connector.tools.request_processing.mrl as mrl
+import app.modules.url_processor.mrl as mrl
 
 
 class Tests(unittest.TestCase):

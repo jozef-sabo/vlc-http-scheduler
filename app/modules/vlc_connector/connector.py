@@ -1,7 +1,7 @@
 from . import tools
+from .. import url_processor
 from . import actions
-import app.modules.VLC_connector.constants as constants
-import app.modules.VLC_connector.constants.uri as uri
+import app.modules.vlc_connector.constants as constants
 from multipledispatch import dispatch
 
 
@@ -18,13 +18,13 @@ def connect(ip: str, password: str, port=8080, username="", **kwargs):
     :rtype: Connector
     """
     init_check = kwargs.get("check_conn", True)
-    ip = tools.validate_ip(ip)
+    ip = url_processor.validate_ip(ip)
     return Connector(ip, password, port, username, init_check)
 
 
 class Connector(object):
     def __init__(self, ip: str, password: str, port: int, username: str, init_check: bool):
-        self.ip = tools.validate_ip(ip)
+        self.ip = url_processor.validate_ip(ip)
         self.password = password
         self.port = port
         self.username = username
@@ -60,7 +60,7 @@ class Connector(object):
         username = kwargs.get("username", None)
         password = kwargs.get("password", None)
 
-        mrl = tools.request_processing.mrl.create().from_parameters(
+        mrl = url_processor.mrl.create().from_parameters(
             access, path, ip, port, username, password
         ).stringify()
         actions.play(self, inp=mrl)

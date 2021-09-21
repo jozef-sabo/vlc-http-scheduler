@@ -4,14 +4,12 @@ __regex = "^((25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9])\\.){3}(25[0-5]|2[0-4]
 
 
 def validate_ip(ip: str) -> str:
-    if ip.strip() == "":
+    ip = ip.strip()
+    if ip == "":
         return ""
-    if ip.startswith("https://"):
-        ip = ip[8:]
 
-    if ip.startswith("http://"):
-        ip = ip[7:]
-
+    split_ip = ip.split("//")
+    ip = split_ip[-1]
     ip = ip.strip("/")
 
     if ip == "localhost":

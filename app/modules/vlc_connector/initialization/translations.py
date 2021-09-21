@@ -1,4 +1,4 @@
-from app.modules.VLC_connector.tools import system as system
+from app.modules.vlc_connector.tools import system as system
 import strings_to_translate
 import os
 import gettext

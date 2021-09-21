@@ -1,5 +1,5 @@
 import sys
-from app.modules.VLC_connector.constants import system_type
+from app.constants import system_type
 
 
 def get_os() -> int:

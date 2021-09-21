@@ -1,5 +1,5 @@
-import VLC_connector
-from VLC_connector import connector
+import vlc_connector
+from vlc_connector import connector
 import flaskr
 
 
