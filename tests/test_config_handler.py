@@ -2,6 +2,7 @@ import unittest
 import app.modules.config_handler as config_handler
 import os
 import shutil
+import sys
 
 
 class Tests(unittest.TestCase):
@@ -13,11 +14,21 @@ class Tests(unittest.TestCase):
 
         self.assertEqual(config_handler.config_folder_exists("./config"), os.path.join(os.getcwd(), "config"))
 
+    @unittest.skipUnless(sys.platform in ["win32", "cygwin"],
+                         "Tested path is not possible only on Windows-like machines")
+    def test_permission_error_win(self):
         with self.assertRaises(PermissionError):
             config_handler.create_config_folder("A:\\config")
 
+    @unittest.skipIf(sys.platform in ["win32", "cygwin"], "Tested path is not possible only on Unix-like machines")
+    def test_permission_error_unix(self):
+        with self.assertRaises(PermissionError):
+            config_handler.create_config_folder("/root/config")
+
     def tearDown(self) -> None:
-        shutil.rmtree(os.path.join(os.getcwd(), "config"))
+        dir_to_remove = os.path.join(os.getcwd(), "config")
+        if os.path.isdir(dir_to_remove):
+            shutil.rmtree(dir_to_remove)
 
     def test_export_config_json(self):
         config_handler.export_config({}, "./config", "conf", "j+")
@@ -158,7 +169,7 @@ class Tests(unittest.TestCase):
 
         config_handler.export_config({"data": "a", "numbers": [1, 2]}, "./config", "conf", "x")
         with open(os.path.join("./config", "conf.xml"), "r", newline="\r\n") as f:
-            self.assertEqual(f.read(), """<?xml version="1.0" ?><root><data type="str">a</data><numbers """+
+            self.assertEqual(f.read(), """<?xml version="1.0" ?><root><data type="str">a</data><numbers """ +
                              """type="list"><item type="int">1</item><item type="int">2</item></numbers></root>""")
 
         config_handler.export_config(["a", 1], "./config", "conf", "x")
