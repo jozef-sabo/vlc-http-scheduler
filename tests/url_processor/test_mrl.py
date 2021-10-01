@@ -230,39 +230,6 @@ class Tests(unittest.TestCase):
                 mrl_to_ftp_file.path.full]
         )
 
-    def test_validate_path(self):
-        mrl_to_ftp_file = mrl.create().from_url("ftp://admin:administrator@ftp.com:5678/Folder1/Folder2/File.mp4")
-
-        self.assertEqual(mrl_to_ftp_file.path.full, "Folder1/Folder2/File.mp4")
-        self.assertEqual(mrl_to_ftp_file.path.path, "Folder1/Folder2")
-        self.assertEqual(mrl_to_ftp_file.path.file_extension, ".mp4")
-        self.assertEqual(mrl_to_ftp_file.path.file_name, "File")
-        self.assertEqual(mrl_to_ftp_file.path.full_filename, "File.mp4")
-
-        mrl_to_ftp_file = mrl.create().from_url("ftp://admin:administrator@ftp.com:5678/File.mp4")
-
-        self.assertEqual(mrl_to_ftp_file.path.full, "File.mp4")
-        self.assertEqual(mrl_to_ftp_file.path.path, "")
-        self.assertEqual(mrl_to_ftp_file.path.file_extension, ".mp4")
-        self.assertEqual(mrl_to_ftp_file.path.file_name, "File")
-        self.assertEqual(mrl_to_ftp_file.path.full_filename, "File.mp4")
-
-        mrl_to_ftp_file = mrl.create().from_url("ftp://admin:administrator@ftp.com:5678/Folder1/Folder2/File")
-
-        self.assertEqual(mrl_to_ftp_file.path.full, "Folder1/Folder2/File")
-        self.assertEqual(mrl_to_ftp_file.path.path, "Folder1/Folder2")
-        self.assertEqual(mrl_to_ftp_file.path.file_extension, "")
-        self.assertEqual(mrl_to_ftp_file.path.file_name, "File")
-        self.assertEqual(mrl_to_ftp_file.path.full_filename, "File")
-
-        mrl_to_ftp_file = mrl.create().from_url("ftp://admin:administrator@ftp.com:5678/Folder1/Folder2/.mp4")
-
-        self.assertEqual(mrl_to_ftp_file.path.full, "Folder1/Folder2/.mp4")
-        self.assertEqual(mrl_to_ftp_file.path.path, "Folder1/Folder2")
-        self.assertEqual(mrl_to_ftp_file.path.file_extension, "")
-        self.assertEqual(mrl_to_ftp_file.path.file_name, ".mp4")
-        self.assertEqual(mrl_to_ftp_file.path.full_filename, ".mp4")
-
     def test_validate_errors(self):
         with self.assertRaises(ResourceWarning):
             mrl.create().from_parameters(mrl.uri.FTP, "File.mp4")

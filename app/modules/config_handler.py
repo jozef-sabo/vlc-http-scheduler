@@ -98,3 +98,50 @@ def export_config(data: Union[dict, list], path: str, filename: str, mode: str =
             file.write(config_text)
 
     return config_files
+
+
+def import_config(path: str, filename: str, mode: str = None) -> Union[dict, list]:
+    """
+    Modes:
+        - "+" creates config folder if not existing
+        - "j" export in JSON
+        - "x" export in XML
+        - "p" prettify config
+        - "o" obfuscates config with base64
+    :param data:
+    :param path:
+    :param filename:
+    :param mode: Modes can customize the config file look. More modes can be used simultaneously.
+
+    :return:
+
+    prettify = False
+    obfuscate = False
+    config_files = []
+
+    if mode is None:
+        mode = "j"
+
+    for character in mode:
+        if character not in modes:
+            raise ValueError("Invalid mode {}".format(mode))
+
+    if "+" in mode:
+        create_config_folder(path)
+
+    if "p" in mode:
+        prettify = True
+
+    if "o" in mode:
+        obfuscate = True
+    """
+
+
+    if not os.path.isdir(os.path.abspath("./config")):
+        raise errors.ConfigFolderMissingError("Config folder was not found. The app needs reinitialization.")
+    jobs_list = [job.as_dictionary() for job in self.jobs]
+
+    with open(os.path.join(os.path.abspath("./config"), filename), "w+", encoding="UTF-8") as jobs_export:
+        jobs_export.writelines(json.dumps(jobs_list, indent=4))
+
+    return []

@@ -1,5 +1,6 @@
 import app.constants.uri as uri
 from app.modules.url_processor import validate_ip
+from app.modules.url_processor import path
 from typing import Optional
 import re
 
@@ -7,7 +8,7 @@ import re
 class MRL(object):
     def __init__(self):
         self.__access: Optional[str] = None  # Way to obtain media e.g. FILE, FTP
-        self.__path: Optional["MRL.Path"] = None  # Path to file when yet in access
+        self.__path: Optional["path.Path"] = None  # Path to file when yet in access
         self.host: Optional[str] = None  # Host or IP of the resource
         self.port: Optional[int] = None  # Port of host of the resource
         self.username: Optional[str] = None  # Username used for authentication of accessing the media
@@ -15,63 +16,6 @@ class MRL(object):
 
     def __str__(self):
         return self.stringify()
-
-    class Path:
-        def __init__(self, path: str):
-            path_split = path.split("/")
-            file_split = path_split[-1].split(".")
-
-            path_split.pop(-1)
-
-            self.__path = "/".join(path_split)
-
-            self.__file_extension = ""
-            if len(file_split) > 1 and not not file_split[0]:  # if files are named for example .gitignore
-                self.__file_extension = ".{}".format(file_split[-1])
-                file_split.pop(-1)
-
-            self.__filename = ".".join(file_split)
-
-            self.__full_filename = ""
-            if self.__filename:
-                self.__full_filename += self.__filename
-
-            if self.__file_extension:
-                self.__full_filename += self.__file_extension
-
-            self.__full_path = "{}/{}".format(self.__path, self.__full_filename)
-            if not self.__path:
-                self.__full_path = self.__full_filename
-                if self.__path == "" and path != self.__full_filename:
-                    self.__full_path = "/{}".format(self.__full_filename)
-
-            if self.__full_path != path:
-                raise RuntimeError("Something went wrong")
-
-        @property
-        def full(self):
-            """Returns full path"""
-            return self.__full_path
-
-        @property
-        def path(self):
-            """Returns path without file"""
-            return self.__path
-
-        @property
-        def file_extension(self):
-            """Returns file extension with trailing dot"""
-            return self.__file_extension
-
-        @property
-        def file_name(self):
-            """Returns filename without extension"""
-            return self.__filename
-
-        @property
-        def full_filename(self):
-            """Returns filename with extension"""
-            return self.__full_filename
 
     def from_url(self, url: str, **kwargs):
         """
@@ -137,14 +81,14 @@ class MRL(object):
                 url_split.pop(0)
 
         # self.__path = "/".join(url_split)
-        self.__path = self.Path("/".join(url_split))
+        self.__path = path.Path("/".join(url_split))
 
         return self
 
     def from_parameters(
             self,
             access: str,
-            path: str,
+            filepath: str,
             host: str = None,
             port: int = None,
             username: str = None,
@@ -153,7 +97,7 @@ class MRL(object):
         """
         Sets parameters from user's parameters specification.
         :param access: Way to obtain media e.g. FILE, FTP
-        :param path: Path to file when yet in access
+        :param filepath: Path to file when yet in access
         :param host: Host or IP of the resource
         :param port: Port of host of the resource
         :param username: Username used for authentication of accessing the media
@@ -167,7 +111,7 @@ class MRL(object):
             raise ResourceWarning("Password or username set, but not both.")
 
         self.__access = access
-        self.__path = self.Path(path)
+        self.__path = path.Path(filepath)
         self.host = host
         self.port = port
         self.username = username
@@ -214,7 +158,7 @@ class MRL(object):
         return self.__access
 
     @property
-    def path(self) -> "MRL.Path":
+    def path(self) -> "path.Path":
         return self.__path
 
 
