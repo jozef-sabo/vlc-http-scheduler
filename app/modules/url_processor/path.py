@@ -1,6 +1,8 @@
 
 class Path:
     def __init__(self, path: str):
+        path = path.replace("\\", "/")
+
         path_split = path.split("/")
         file_split = path_split[-1].split(".")
 

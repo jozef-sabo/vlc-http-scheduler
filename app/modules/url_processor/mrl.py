@@ -1,6 +1,6 @@
 import app.constants.uri as uri
-from app.modules.url_processor import validate_ip
-from app.modules.url_processor import path
+from . import validate_ip
+from . import path
 from typing import Optional
 import re
 

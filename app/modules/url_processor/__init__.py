@@ -1,6 +1,6 @@
 from .validate_ip import validate_ip
+from . import path as path
 from . import mrl
-from . import path
 
 
 def parse_path(filepath: str) -> path.Path:
