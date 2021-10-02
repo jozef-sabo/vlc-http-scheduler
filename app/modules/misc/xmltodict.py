@@ -34,7 +34,7 @@ def cast_from_attribute(text, attr):
         raise TypeError("unsupported type: only 'str', 'int', 'float', 'bool', 'list', 'dict', and 'None' supported")
 
 
-def xmltodict(obj):
+def xmltodict(obj, ignore_root: bool = True):
     """Converts an XML string into a Python object based on each tag's attribute"""
     def add_to_output(out_object, tree_child):
         if "type" not in tree_child.attrib:
@@ -51,4 +51,6 @@ def xmltodict(obj):
     output = {}
     for child in root:
         add_to_output(output, child)
+    if ignore_root:
+        return output
     return {root.tag: output}

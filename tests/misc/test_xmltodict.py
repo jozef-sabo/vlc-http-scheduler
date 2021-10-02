@@ -26,6 +26,9 @@ class Tests(unittest.TestCase):
         }
         xml = dicttoxml.dicttoxml(inp)
         output = xmltodict.xmltodict(xml)
+        self.assertEqual(inp, output)
+
+        output = xmltodict.xmltodict(xml, False)
         self.assertEqual({'root': inp}, output)
 
 
