@@ -357,6 +357,9 @@ class Tests(unittest.TestCase):
 
     def test_import_config_errors(self):
         with self.assertRaises(errors.ConfigFolderMissingError):
+            ConfigHandler.export_config({}, "./config", "test")
+
+        with self.assertRaises(errors.ConfigFolderMissingError):
             ConfigHandler.import_config("./config", "test")
 
         ConfigHandler.create_config_folder("./config")

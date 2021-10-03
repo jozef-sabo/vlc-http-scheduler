@@ -74,6 +74,10 @@ class ConfigHandler:
         if "+" in mode:
             ConfigHandler.create_config_folder(path)
 
+        if not os.path.isdir(path):
+            raise errors.ConfigFolderMissingError(
+                "Config folder ({}) for '{}' was not found.".format(path, filename))
+
         if "p" in mode:
             prettify = True
 
