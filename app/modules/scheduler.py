@@ -11,11 +11,10 @@ import re
 import time
 from typing import Set, List, Optional, Callable, Union
 import queue
-import os
-import app.modules.misc.errors as errors
-import json
+from app.modules.config_handler import ConfigHandler
 
-JOBS_EXPORT_FILE_NAME = "schedule.json"
+CONFIG_FOLDER = "./config"
+JOBS_EXPORT_FILE_NAME = "schedule"
 used_functions = {}
 
 logger = logging.getLogger("schedule")
@@ -79,32 +78,19 @@ class Scheduler(object):
             return [job for job in self.jobs if tag in job.tags]
 
     def export_jobs(self, filename: str = JOBS_EXPORT_FILE_NAME):
-        if not os.path.isdir(os.path.abspath("./config")):
-            raise errors.ConfigFolderMissingError("Config folder was not found. The app needs reinitialization.")
         jobs_list = [job.as_dictionary() for job in self.jobs]
 
-        with open(os.path.join(os.path.abspath("./config"), filename), "w+", encoding="UTF-8") as jobs_export:
-            jobs_export.writelines(json.dumps(jobs_list, indent=4))
+        ConfigHandler.export_config(jobs_list, CONFIG_FOLDER, filename, "jp")
 
     def import_jobs(self, filename: str = JOBS_EXPORT_FILE_NAME):
-        if not os.path.isdir(os.path.abspath("./config")):
-            raise errors.ConfigFolderMissingError("Config folder was not found. The app needs reinitialization.")
-        file_path = os.path.join(os.path.abspath("./../config"), filename)
-        if not os.path.isfile(file_path):
-            raise errors.ConfigFileMissingError("Jobs file was not found. Any jobs were stored.")
-
-        with open(file_path, "r", encoding="UTF-8") as jobs_import:
-            jobs_list = json.loads(jobs_import.read())
+        jobs_list = ConfigHandler.import_config(CONFIG_FOLDER, filename + ".json", "j")
 
         for job in jobs_list:
             sched_job = Job(1)
-            # sched_job.from_dictionary(job, self)
             try:
                 sched_job.from_dictionary(job, self)
             except Exception as e:  # TODO: better exception
                 logger.debug('Job could not been imported "%s"', str(job))
-            else:
-                self.jobs.append(sched_job)
 
     def clear(self, tag: Optional[Hashable] = None) -> None:
         """
